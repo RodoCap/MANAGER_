@@ -1,133 +1,124 @@
-import json
+import json 
 import os
 from cryptography.fernet import Fernet
 
 class GestorModel:
 
-    # =========================
-    # CONFIGURACIÓN INICIAL
-    # =========================
-    # Define las rutas de almacenamiento
+    # Constructor
+
+    # Inicializa las rutas de los archivos utilizados en el sistema
     def __init__(self):
-        self.ruta_json = "passwords.json"
-        self.ruta_cifrado = "datos.key"
-        self.ruta_clave = "clave.key"
+        self.archivo_json = "passwords.json"
+        self.archivo_cifrado = "datos.key"
+        self.archivo_clave = "clave.key"
 
 
-    # =========================
-    # CREAR CLAVE
-    # =========================
+    # Genera la clave
+
+    # Crea una clave simétrica si no existe previamente
     def generar_clave(self):
-        if os.path.exists(self.ruta_clave):
-            return "La clave ya fue creada anteriormente"
-
-        nueva_clave = Fernet.generate_key()
-        with open(self.ruta_clave, "wb") as archivo:
-            archivo.write(nueva_clave)
-
-        return "Clave creada correctamente"
+        if not os.path.exists(self.archivo_clave):
+            clave = Fernet.generate_key()
+            with open(self.archivo_clave, "wb") as f:
+                f.write(clave)
+            return "Clave generada"
+        return "La clave ya existe"
 
 
-    # =========================
-    # OBTENER CLAVE
-    # =========================
-    def obtener_clave(self):
-        with open(self.ruta_clave, "rb") as archivo:
-            return archivo.read()
+    # Carga la clave
+
+    # Lee la clave almacenada en el archivo de claves
+    def cargar_clave(self):
+        return open(self.archivo_clave, "rb").read()
 
 
-    # =========================
-    # GUARDAR DATOS
-    # =========================
+    # Guardar contraseña
+    # Almacena un servicio con usuario, contraseña y categoría en el archivo json
     def guardar_password(self, servicio, usuario, password, categoria):
+        try:
+            with open(self.archivo_json, "r") as f:
+                datos = json.load(f)
+        except:
+            datos = {}
 
-        if os.path.exists(self.ruta_json):
-            try:
-                with open(self.ruta_json, "r") as archivo:
-                    info = json.load(archivo)
-            except:
-                info = {}
-        else:
-            info = {}
-
-        info[servicio] = {
+        datos[servicio] = {
             "usuario": usuario,
             "password": password,
             "categoria": categoria
         }
 
-        with open(self.ruta_json, "w") as archivo:
-            json.dump(info, archivo, indent=4)
+        with open(self.archivo_json, "w") as f:
+            json.dump(datos, f, indent=4)
 
-        return "Registro almacenado"
+        return "Guardado correctamente"
 
 
-    # =========================
-    # CIFRAR DATOS
-    # =========================
+    # Cifra los datos
+
+    # Cifra el contenido del json y lo guarda en un archivo protegido
     def cifrar(self):
-        if not os.path.exists(self.ruta_json):
-            return "No hay datos para proteger"
+        if not os.path.exists(self.archivo_json):
+            return "No existe JSON"
 
-        clave = self.obtener_clave()
-        encriptador = Fernet(clave)
+        clave = self.cargar_clave()
+        fernet = Fernet(clave)
 
-        with open(self.ruta_json, "rb") as archivo:
-            contenido = archivo.read()
+        with open(self.archivo_json, "rb") as f:
+            datos = f.read()
 
-        contenido_cifrado = encriptador.encrypt(contenido)
+        datos_cifrados = fernet.encrypt(datos)
 
-        with open(self.ruta_cifrado, "wb") as archivo:
-            archivo.write(contenido_cifrado)
+        with open(self.archivo_cifrado, "wb") as f:
+            f.write(datos_cifrados)
 
-        os.remove(self.ruta_json)
+        os.remove(self.archivo_json)
 
-        return "Información cifrada correctamente"
+        return "Datos cifrados"
 
 
-    # =========================
-    # DESCIFRAR DATOS
-    # =========================
+    # Descifra los datos
+
+    # Recupera el archivo cifrado y reconstruye el archivo json original
     def descifrar(self):
-        if not os.path.exists(self.ruta_cifrado):
-            return None, "No se encontró archivo cifrado"
+        if not os.path.exists(self.archivo_cifrado):
+            return None, "No existe archivo cifrado"
 
-        clave = self.obtener_clave()
-        encriptador = Fernet(clave)
+        clave = self.cargar_clave()
+        fernet = Fernet(clave)
 
-        with open(self.ruta_cifrado, "rb") as archivo:
-            contenido_cifrado = archivo.read()
+        with open(self.archivo_cifrado, "rb") as f:
+            datos_cifrados = f.read()
 
         try:
-            contenido = encriptador.decrypt(contenido_cifrado)
+            datos = fernet.decrypt(datos_cifrados)
 
-            with open(self.ruta_json, "wb") as archivo:
-                archivo.write(contenido)
+            with open(self.archivo_json, "wb") as f:
+                f.write(datos)
 
-            datos = json.loads(contenido.decode())
+            datos_json = json.loads(datos.decode())
 
-            return datos, "Datos recuperados correctamente"
+            return datos_json, "Datos descifrados"
 
         except:
-            return None, "No fue posible descifrar"
+            return None, "Error al descifrar"
 
 
-    # =========================
-    # ELIMINAR DATOS
-    # =========================
+    # Elimina el servicio
+    
+    # Elimina un registro específico del archivo json
     def eliminar(self, servicio):
-        if not os.path.exists(self.ruta_json):
-            return "Primero debes recuperar los datos"
+        if not os.path.exists(self.archivo_json):
+            return "Debes descifrar primero"
 
-        with open(self.ruta_json, "r") as archivo:
-            info = json.load(archivo)
+        with open(self.archivo_json, "r") as f:
+            datos = json.load(f)
 
-        if servicio not in info:
-            return "Servicio no encontrado"
+        if servicio in datos:
+            del datos[servicio]
 
-        del info[servicio]
+            with open(self.archivo_json, "w") as f:
+                json.dump(datos, f, indent=4)
 
-        with open(self.ruta_json, "w") as archivo:
-            json.dump(info, archivo, indent=4)
+            return "Eliminado"
 
-        return "Registro eliminado"
+        return "No existe"

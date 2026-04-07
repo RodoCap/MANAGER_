@@ -1,5 +1,5 @@
-📌 Gestor de Contraseñas Seguro (Python + MVC)
-🧾 Descripción
+ Gestor de Contraseñas Seguro (Python + MVC)
+ Descripción
 
 Este proyecto es una aplicación de escritorio desarrollada en Python que permite gestionar contraseñas de diferentes servicios de manera segura.
 
@@ -11,13 +11,13 @@ Los datos se almacenan en archivos JSON y las contraseñas se protegen mediante 
 
 La aplicación permite realizar operaciones CRUD sobre los registros:
 
-✅ Registrar credenciales (servicio, usuario, contraseña, categoría)
-✅ Consultar credenciales almacenadas
-✅ Eliminar registros específicos
-✅ Cifrar toda la información almacenada
-✅ Descifrar información cuando se requiera
-✅ Generar clave de cifrado
-🔐 Seguridad y Cifrado
+ Registrar credenciales (servicio, usuario, contraseña, categoría)
+ Consultar credenciales almacenadas
+ Eliminar registros específicos
+ Cifrar toda la información almacenada
+ Descifrar información cuando se requiera
+ Generar clave de cifrado
+ Seguridad y Cifrado
 
 El sistema utiliza la librería cryptography específicamente el módulo Fernet, que proporciona cifrado simétrico seguro.
 
@@ -34,25 +34,25 @@ Se elimina el JSON en texto plano
 Se almacena el archivo cifrado (datos.key)
 Para visualizar datos, se descifra usando la clave
 
-👉 Esto garantiza que las contraseñas no sean visibles en almacenamiento.
+ Esto garantiza que las contraseñas no sean visibles en almacenamiento.
 
-🧱 Arquitectura (MVC)
+Arquitectura (MVC)
 
 El proyecto está dividido en tres capas:
 
-🧠 Modelo (Model)
+ Modelo (Model)
 Maneja la lógica de negocio
 Gestiona archivos JSON
 Implementa cifrado y descifrado
-🖥️ Vista (View)
+ Vista (View)
 Interfaz gráfica desarrollada con Tkinter
 Permite la interacción del usuario
 Muestra formularios y resultados
-🎮 Controlador (Controller)
+ Controlador (Controller)
 Actúa como intermediario entre vista y modelo
 Procesa eventos de la interfaz
 Ejecuta las operaciones del modelo
-📦 Librerías utilizadas
+ Librerías utilizadas
 Librerías estándar:
 json → Manejo de datos en formato JSON
 os → Manejo de archivos y rutas
@@ -64,7 +64,7 @@ Se utiliza para cifrar y descifrar contraseñas con Fernet
 Instalación:
 
 pip install cryptography
-🖥️ Interfaz Gráfica
+ Interfaz Gráfica
 
 La aplicación utiliza Tkinter, una biblioteca estándar de Python que permite crear aplicaciones de escritorio multiplataforma.
 

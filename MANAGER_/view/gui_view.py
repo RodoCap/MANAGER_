@@ -3,82 +3,111 @@ from tkinter import messagebox
 
 class GUIView:
 
+    # Constructor interfaz
+    # Inicializa la ventana principal y sus componentes
     def __init__(self):
-        self.ventana = tk.Tk()
-        self.ventana.title("Administrador de Credenciales")
-        self.ventana.geometry("400x500")
+        self.root = tk.Tk()
+        self.root.title("Gestor de Contraseñas")
+        self.root.geometry("400x500")
 
-        tk.Label(self.ventana, text="Servicio").pack()
-        self.input_servicio = tk.Entry(self.ventana)
-        self.input_servicio.pack()
+        # Inputs formulario
+        # Campos para ingresar los datos del usuario
+        tk.Label(self.root, text="Sitio").pack()
+        self.entry_servicio = tk.Entry(self.root)
+        self.entry_servicio.pack()
 
-        tk.Label(self.ventana, text="Usuario").pack()
-        self.input_usuario = tk.Entry(self.ventana)
-        self.input_usuario.pack()
+        tk.Label(self.root, text="Usuario").pack()
+        self.entry_usuario = tk.Entry(self.root)
+        self.entry_usuario.pack()
 
-        tk.Label(self.ventana, text="Clave").pack()
-        self.input_clave = tk.Entry(self.ventana, show="*")
-        self.input_clave.pack()
+        tk.Label(self.root, text="Contraseña").pack()
+        self.entry_password = tk.Entry(self.root, show="*")
+        self.entry_password.pack()
 
-        tk.Label(self.ventana, text="Categoria").pack()
-        self.input_categoria = tk.Entry(self.ventana)
-        self.input_categoria.pack()
+        tk.Label(self.root, text="Categoría").pack()
+        self.entry_categoria = tk.Entry(self.root)
+        self.entry_categoria.pack()
 
-        contenedor_botones = tk.Frame(self.ventana)
-        contenedor_botones.pack(pady=10)
+        # Botones acciones
+        # Contenedor y botones para ejecutar funciones
+        frame_botones = tk.Frame(self.root)
+        frame_botones.pack(pady=10)
 
-        self.boton_clave = tk.Button(contenedor_botones, text="Crear clave")
-        self.boton_clave.grid(row=0, column=0, padx=5)
+        self.btn_generar = tk.Button(frame_botones, text="Generar Clave")
+        self.btn_generar.grid(row=0, column=0, padx=5)
 
-        self.boton_guardar = tk.Button(contenedor_botones, text="Registrar")
-        self.boton_guardar.grid(row=0, column=1, padx=5)
+        self.btn_guardar = tk.Button(frame_botones, text="Guardar")
+        self.btn_guardar.grid(row=0, column=1, padx=5)
 
-        self.boton_cifrar = tk.Button(contenedor_botones, text="Proteger")
-        self.boton_cifrar.grid(row=0, column=2, padx=5)
+        self.btn_cifrar = tk.Button(frame_botones, text="Cifrar")
+        self.btn_cifrar.grid(row=0, column=2, padx=5)
 
-        self.boton_descifrar = tk.Button(contenedor_botones, text="Recuperar")
-        self.boton_descifrar.grid(row=0, column=3, padx=5)
+        self.btn_descifrar = tk.Button(frame_botones, text="Descifrar")
+        self.btn_descifrar.grid(row=0, column=3, padx=5)
 
-        self.boton_eliminar = tk.Button(contenedor_botones, text="Borrar")
-        self.boton_eliminar.grid(row=0, column=4, padx=5)
+        self.btn_eliminar = tk.Button(frame_botones, text="Eliminar")
+        self.btn_eliminar.grid(row=0, column=4, padx=5)
 
-        self.area_texto = tk.Text(self.ventana, height=10)
-        self.area_texto.pack()
+        # Area de texto
+        # Muestra los datos recuperados al usuario
+        self.texto = tk.Text(self.root, height=10)
+        self.texto.pack()
 
-    # 🔴 AQUÍ ESTABA EL ERROR CORREGIDO
-    def set_controller(self, controlador):
-        self.boton_clave.config(command=controlador.crear_clave)  # antes: generar_clave ❌
-        self.boton_guardar.config(command=controlador.registrar)
-        self.boton_cifrar.config(command=controlador.proteger_datos)
-        self.boton_descifrar.config(command=controlador.recuperar_datos)
-        self.boton_eliminar.config(command=controlador.borrar)
 
+    # Conectar controller
+    # Asocia cada boton con su funcion en el controlador
+    def set_controller(self, controller):
+        self.btn_generar.config(command=controller.generar_clave)
+        self.btn_guardar.config(command=controller.guardar)
+        self.btn_cifrar.config(command=controller.cifrar)
+        self.btn_descifrar.config(command=controller.descifrar)
+        self.btn_eliminar.config(command=controller.eliminar)
+
+
+    # Obtener datos
+    # Recupera los valores ingresados en el formulario
     def obtener_datos(self):
         return (
-            self.input_servicio.get(),
-            self.input_usuario.get(),
-            self.input_clave.get(),
-            self.input_categoria.get()
+            self.entry_servicio.get(),
+            self.entry_usuario.get(),
+            self.entry_password.get(),
+            self.entry_categoria.get()
         )
 
+
+    # Obtener servicio
+    # Devuelve el servicio ingresado para operaciones especificas
     def obtener_servicio(self):
-        return self.input_servicio.get()
+        return self.entry_servicio.get()
 
-    def mostrar_mensaje(self, mensaje):
-        messagebox.showinfo("Sistema", mensaje)
 
+    # Mostrar mensaje
+    # Muestra una alerta con informacion al usuario
+    def mostrar_mensaje(self, msg):
+        messagebox.showinfo("Info", msg)
+
+
+    # Mostrar datos
+    # Imprime los registros en el area de texto
     def mostrar_datos(self, datos):
-        self.area_texto.delete("1.0", tk.END)
+        self.texto.delete("1.0", tk.END)
+        for s, info in datos.items():
+            self.texto.insert(
+                tk.END,
+                f"{s} | Usuario: {info['usuario']} | Password: {info['password']} | Categoria: {info['categoria']}\n"
+            )
 
-        for servicio, info in datos.items():
-            linea = f"{servicio} | Usuario: {info['usuario']} | Password: {info['password']} | Categoria: {info['categoria']}\n"
-            self.area_texto.insert(tk.END, linea)
 
+    # Limpiar campos
+    # Borra el contenido de los inputs del formulario
     def limpiar_campos(self):
-        self.input_servicio.delete(0, tk.END)
-        self.input_usuario.delete(0, tk.END)
-        self.input_clave.delete(0, tk.END)
-        self.input_categoria.delete(0, tk.END)
+        self.entry_servicio.delete(0, tk.END)
+        self.entry_usuario.delete(0, tk.END)
+        self.entry_password.delete(0, tk.END)
+        self.entry_categoria.delete(0, tk.END)
 
+
+    # Iniciar aplicacion
+    # Ejecuta el bucle principal de la interfaz grafica
     def iniciar(self):
-        self.ventana.mainloop()
+        self.root.mainloop()
